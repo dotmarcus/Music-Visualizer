@@ -5,8 +5,8 @@ AudioContext ac; // create our AudioContext
 AudioContext ac2;
 
 Glide gainGlide;
-PeakDetector bd;    
-PeakQueue bq;
+BeatDetector bd;    
+BeatQueue bq;
 int forward = 2000;  // how many milliseconds to look forward
 float spd;
 float fadeInVal = 1;
@@ -24,9 +24,9 @@ void initMusic() {
   
   stroke(255);
   time = millis();
-  bd = new PeakDetector(forward);
+  bd = new BeatDetector(forward);
   bd.loadSong(song);
-  bq = new PeakQueue(bd);
+  bq = new BeatQueue(bd);
   bd.start();
   gainGlide.setValue(1);
 }
@@ -47,11 +47,11 @@ void test(){
   rect(0, 0, 100, height-1);
   strokeWeight(3);
   
-  int Peaks[] = bq.nexts(); // returns an array of time of Peaks
+  int beats[] = bq.nexts(); // returns an array of time of Peaks
   
-  for (int i = 0; i < Peaks.length; ++i) {
+  for (int i = 0; i < beats.length; ++i) {
     //int r = 50 - Peaks[i] * 50 / forward;
-    int r = height - Peaks[i] * height / forward;
+    int r = height - beats[i] * height / forward;
     print("note: "+r+"\n");
     stroke(255,235,3,r);
     //int r = Peaks[i] * 50 / forward;

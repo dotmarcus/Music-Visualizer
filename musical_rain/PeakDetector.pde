@@ -6,12 +6,12 @@ float volume;
 int time; // tracks the time 
 float eRadius;
 
-class PeakDetector {
+class BeatDetector {
   public int forward;  // How long to look forward 
-  int target_interval = 500;  // Target interval of Peaks, will dynamicly affect threshold
+  int target_interval = 500;  // Target interval of beats, will dynamicly affect threshold
   String start_music_src = "start_music3.mp3";  // The place of the start music
   
-  int last_Peak;
+  int last_beat;
   float default_threshold = (float)1e-10;
   float cur_threshold = default_threshold;
   
@@ -21,7 +21,7 @@ class PeakDetector {
   
   AudioContext ac_start = new AudioContext(); // Music before real song begin
   
-  PeakDetector(int forward) {
+  BeatDetector(int forward) {
     this.forward = forward;
     // set up the AudioContext and the master Gain object
     ac = new AudioContext();
@@ -46,11 +46,11 @@ class PeakDetector {
     SpectralDifference sd = new SpectralDifference(ac.getSampleRate());
     ps.addListener(sd);
     
-    // we will use the PeakDetector object to actually find our Peaks
+    // we will use the PeakDetector object to actually find our beats
     peakDetector = new PeakDetector();
     sd.addListener(peakDetector);
     
-    // the threshold is the gain level that will trigger the Peak detector - this will vary on each recording
+    // the threshold is the gain level that will trigger the beat detector - this will vary on each recording
     peakDetector.setThreshold(cur_threshold);
     
     //peakDetector.setThreshold(.1);
@@ -60,12 +60,12 @@ class PeakDetector {
        {
          protected void messageReceived(Bead b)
          {
-           if (millis() - last_Peak > target_interval) {
+           if (millis() - last_beat > target_interval) {
              decreaseThreshold();
            } else {
              increaeThreshold();
            }
-           last_Peak = millis();
+           last_beat = millis();
            scheduleDecrease();
          }
        }

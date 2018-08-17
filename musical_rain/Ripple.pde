@@ -84,7 +84,7 @@ class Ripple {
 }
 
 void limitRip() {
-  if (eRadius >= 80 && eRadius < 83) {
+  if (eRadius >= 80 && eRadius < 82) {
     trigger = true;
   } else {
     trigger = false;
