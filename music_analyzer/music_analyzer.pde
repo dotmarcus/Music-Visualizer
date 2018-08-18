@@ -2,11 +2,15 @@ import ddf.minim.analysis.*;
 import ddf.minim.*;
 
 Minim       minim;
-AudioPlayer jingle;
 FFT         fft;
+AudioPlayer song;
+Play play;
+Rewind rewind;
+Forward ffwd;
 
 float r = 200;
 float d = 42;
+
 
 void setup()
 {
@@ -16,41 +20,77 @@ void setup()
 
   minim = new Minim(this);
 
-  // specify that we want the audio buffers of the AudioPlayer
-  // to be 1024 samples long because our FFT needs to have 
-  // a power-of-two buffer size and this is a good size.
-  jingle = minim.loadFile("jingle.mp3", 1024);
+  song = minim.loadFile("68 Gerudo Valley.mp3", 1024);
+  //song.loop();
+  play = new Play(width/2 - 50, 130, 20, 10);
+  rewind = new Rewind(width/2, 130, 20, 10);
+  ffwd = new Forward(width/2 + 50, 130, 20, 10);
+ 
+  textFont(createFont("Helvetica", 16));
+  textAlign(CENTER);
 
-  // loop the file indefinitely
-  jingle.loop();
-
-  // create an FFT object that has a time-domain buffer 
-  // the same size as jingle's sample buffer
-  // note that this needs to be a power of two 
-  // and that it means the size of the spectrum will be half as large.
-  fft = new FFT( jingle.bufferSize(), jingle.sampleRate() );
+  fft = new FFT( song.bufferSize(), song.sampleRate() );  
 }
 
 void draw()
 {
   background(0);
+  
+  noFill();
   stroke(255);
+  strokeWeight(1); 
+  
+  float x = map(song.position(), 0, song.length(), 0, width);
+  
+  for (int i = 0; i < song.bufferSize() - 1;  i++)
+  {
+    ellipse(i*1.8, 50, 0, song.left.get(i)*50);
+  }
+  
   pushMatrix(); 
   translate(width/2, height/2);
   float arclength = 0;  
-  fft.forward( jingle.mix );
+  fft.forward( song.mix );
   for (int i = 0; i < fft.specSize(); i++)
   {
     arclength += d;
     float theta = arclength / r; 
     pushMatrix();
-    //rotate(-(frameCount * 0.005) + (i*PI/(i*10)));
+    //rotate((frameCount * 0.005 * x/50) + (x*PI/(x*10)));
     translate(r*cos(theta), r*sin(theta));
     rotate(theta);
-    //arc(i, height/2, 0, fft.getBand(i)*8, 0, PI * 2);
-    ellipse(0, 0, fft.getBand(i)*8,0);
+    float w = fft.getBand(i)*8;
+    if (w > r) w = r;
+    
+    ellipse(0, 0, w, 0);
     popMatrix();
-    arclength += d/2; 
-  }
+    arclength += d/2;
+  } 
   popMatrix();
+  
+  
+  stroke(255, 0, 0);
+  line(x, 50 - 20, x, 50 + 20);
+  
+  play.update();
+  play.draw();
+  rewind.update();
+  rewind.draw();
+  ffwd.update(); 
+  ffwd.draw();
+  
+}
+
+void mousePressed()
+{
+  play.mousePressed();
+  rewind.mousePressed();
+  ffwd.mousePressed();
+}
+
+void mouseReleased()
+{
+  play.mouseReleased();
+  rewind.mouseReleased();
+  ffwd.mouseReleased();
 }
