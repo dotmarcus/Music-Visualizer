@@ -20,35 +20,7 @@ class visualizer {
     rWidth = width*0.99;
     rHeight = height*0.99;
   }  
-
-  void drawEQ()
-  {
-    /* Creates the values needed to make the 3D effect */
-    tint(255, 255, 255, 254);
-    //image(fade, (width-rWidth)/2, (height-rHeight)/2, rWidth, rHeight);
-    noTint();
-
-    /* Rainbow Effect parameters */
-    smooth();
-    colorMode(HSB);          //sets color mode value 
-    fill(hVal, 255, 255);    //cycles through hue and brightness to expose a greater color palete
-    stroke(hVal, 255, 225);  //sets the stroke to cycle through the whole color spectrum 
-    colorMode(RGB);          //sets color mode back to Red green and blue 
-
-
-    /*For loop for creating the audio bars */
-    fft.forward(mp3.mix);                        // used to analyze the frequency coming from the mix 
-    for (int i = 0; i < fft.specSize()%50; i++)  // specSize is changing the range of analysis
-    {
-      rect((i)%100, height, (i)%100, height - fft.getFreq(i/2)*1.2);
-    }
-    hVal +=1;
-
-    if (hVal > 255)
-    {
-      hVal = 0;
-    }
-  }
+  
   void drawBEQ() {
     pushMatrix();              //saves current context of the operations
     

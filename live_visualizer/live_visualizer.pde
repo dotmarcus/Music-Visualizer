@@ -1,13 +1,3 @@
-/* liveInputExample<br/>
-   is an example of using the LiveInput UGen to patch 
-   the audio input from your computer (usually the microphone) to the output.
-   <p>
-   For more information about Minim and additional features, 
-   visit http://code.compartmental.net/minim/
-   <p>
-   author: Damien Di Fede
-*/
-
 import ddf.minim.*;
 import ddf.minim.ugens.*;
 import ddf.minim.spi.*; // for AudioStream
@@ -16,33 +6,25 @@ Minim minim;
 AudioOutput out;
 LiveInput in;
 
-float r = 200;
+float r = 450;
 float d = 42;
 
 
-void setup()
-{
-  // initialize the drawing window
-  //size(512, 200);
+void setup() {
   fullScreen();
   
-  // initialize the minim and out objects
   minim = new Minim(this);
   out = minim.getLineOut();
-  
-  // we ask for an input with the same audio properties as the output.
+
   AudioStream inputStream = minim.getInputStream( out.getFormat().getChannels(), 
-                                                  out.bufferSize(), 
-                                                  out.sampleRate(), 
-                                                  out.getFormat().getSampleSizeInBits());
-                                                 
-  // construct a LiveInput by giving it an InputStream from minim.                                                  
+    out.bufferSize(), 
+    out.sampleRate(), 
+    out.getFormat().getSampleSizeInBits());
+                                                  
   in = new LiveInput( inputStream );
-  
-  // create granulate UGen so we can hear the input being modfied before it goes to the output
+
   GranulateSteady grain = new GranulateSteady();
-  
-  // patch the input through the grain effect to the output
+
   in.patch(grain).patch(out);
 }
 
@@ -53,12 +35,25 @@ void draw()
   background( 0 );
   // draw using a white stroke
   stroke( 255 );
+  strokeWeight(1);
+
+  for (int i = 0; i < out.bufferSize() - 1; i++)
+  {
+    ellipse(50, i, out.left.get(i)*50, 0);
+    ellipse(width-50, i, out.right.get(i)*50, 0);
+  }
+
   pushMatrix(); 
   translate(width/2, height/2);
+  scale(.25);
+  strokeWeight(20);
+  noFill();
   float arclength = 0; 
   // draw the waveforms
-  for( int i = 0; i < out.bufferSize() - 1; i++ )
+  for ( int i = 0; i < out.bufferSize() - 1; i++ )
   {
+    if (out.left.get(i) > 0.01 && out.right.get(i) > 0.01) stroke(255, 0, 0);
+    else stroke(255);
     arclength += d;
     float theta = arclength / r; 
     pushMatrix();
@@ -68,11 +63,10 @@ void draw()
     float x1  =  map( i, 0, out.bufferSize(), 0, width );
     float x2  =  map( i+1, 0, out.bufferSize(), 0, width );
     // draw a line from one buffer position to the next for both channels
-    //line( x1, 50 + out.left.get(i)*50, x2, 50 + out.left.get(i+1)*50);
-    //line( x1, 150 + out.right.get(i)*50, x2, 150 + out.right.get(i+1)*50);
-    ellipse(0, 0, out.right.get(i+1)*250, 0);
+    line( x1, 50 + out.left.get(i)*65, x2, 50 + out.left.get(i+1)*65);
+    line( x1, 150 + out.right.get(i)*65, x2, 150 + out.right.get(i+1)*65);
     popMatrix();
-    arclength += d/2; 
+    arclength += d/2;
   } 
   popMatrix();
 }

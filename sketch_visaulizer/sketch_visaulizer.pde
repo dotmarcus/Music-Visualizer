@@ -24,38 +24,48 @@ void setup()
   frameRate(1000);
   started = false;
   selection = false;
-  
+
   /* Sound and minim setup parameters */
   minim = new Minim(this);
-  /*
-  Music by オオドラ
-  UNDERTALE 1ST ANNIVERSARY SPECIAL RELEASE - 09.15.2016.
-  http://underveil.unisphere.tv/
-  */
-  mp3 = minim.loadFile("01 Enemy Approaching アレンジ.mp3",2048);
-  out = minim.getLineOut(Minim.STEREO,44100);
-  fft = new FFT(mp3.bufferSize(),mp3.sampleRate());  //allows for the decription of the sound waves 
-  rectMode(CORNERS);
-  mp3.loop();
-  
-  classicVi = new visualizer(); // initializes the class visualizer 
+  selectInput("Select an audio file:", "fileSelected");
+}
+
+void fileSelected(File selection) {
+  if (selection == null) {
+    println("Window was closed or the user hit cancel.");
+  } else {
+    String audioFileName = selection.getAbsolutePath();
+    mp3 = minim.loadFile(audioFileName, 2048);
+
+    out = minim.getLineOut(Minim.STEREO, 44100);
+    fft = new FFT(mp3.bufferSize(), mp3.sampleRate());  //allows for the decription of the sound waves 
+    rectMode(CORNERS);
+
+    classicVi = new visualizer(); // initializes the class visualizer
+  }
 }
 
 void draw()
 {
-  canPlay = true;
-    background(0);
-    classicVi.drawBEQ();
-    if(canPlay)
-    {
-      mp3.play();
+  if (mp3 != null) {
+    if (fft != null) {
+      if (classicVi != null) {
+        canPlay = true;
+        background(0);
+        classicVi.drawBEQ();
+        if (canPlay)
+        {
+          mp3.play();
+        }
+      }
     }
+  }
 }
 
 /* Start Button Parameters */
 void keyPressed()
 {
-  if(key == ESC)
+  if (key == ESC)
   {
     started = false; //kills the program 
     mp3.pause();
